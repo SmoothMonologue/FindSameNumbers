@@ -83,6 +83,13 @@ public class MainActivity extends AppCompatActivity {
                 tableRows[i].addView(requst);
             }
 
+            /*else if (i == 5) {
+                TextView explain = new TextView(this);
+                explain.setText("수 2개를 고른 뒤 연산 기호를 고르세요.");
+                //explain.setLayoutParams(layoutParams);
+                tableRows[i].addView(explain);
+            }*/
+
             else {
                 for (int j = 0; j < 4; j++) {
                     int ranValue = random.nextInt(12);
