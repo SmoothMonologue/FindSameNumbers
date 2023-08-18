@@ -2,6 +2,7 @@ package com.example.gh;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -15,9 +16,9 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
     Random random = new Random();
     NumberButton[][] buttons = new NumberButton[4][4];
-    int count[] = new int[12];
-    int targetNumber[] = new int[12];
-    Character units[] = {'+', '-', 'x', '^'};
+    int[] count = new int[12];
+    int[] targetNumber = new int[12];
+    Character[] units = {'+', '-', 'x', '^'};
     Character[] covers = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'};
     int openCount = 0, goal = 0, tryCount = 0;
     int firstValue, secondValue;
@@ -38,7 +39,17 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < 12; i++) {
             firstValue = random.nextInt(12)+1;
             secondValue = random.nextInt(12)+1;
+            if (secondValue == firstValue) {
+                if (secondValue != 1) secondValue--;
+                else secondValue++;
+            }
             calUnit = units[random.nextInt(4)];
+            for (int j = 0; j < i; j++) {
+                if (playerChoice() == targetNumber[j]) {
+                    i--;
+                    continue;
+                }
+            }
             targetNumber[i] = playerChoice();
 
             count[i] = 0;
@@ -65,29 +76,32 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(MainActivity.this, "숫자 2개를 고른 뒤에 기호를 선택하세요.", Toast.LENGTH_SHORT).show();
                             }
                             else {
-                                calUnit = button.getCover();
-                                Toast.makeText(MainActivity.this, firstValue + String.valueOf(calUnit) + secondValue + "=" + playerChoice(), Toast.LENGTH_SHORT).show();
-                                openCount = 0;
-                                for (int x = 0; x < 3; x++) {
-                                    for (int y = 0; y < 4; y++) {
-                                        buttons[x][y].closeCover();
-                                    }
+                                if (goal == 12) {
+                                    Toast.makeText(MainActivity.this, "문제를 모두 푸셨습니다.", Toast.LENGTH_SHORT).show();
                                 }
-                                tryCount++;
-                                numOfTry.setText("시도: " + String.valueOf(tryCount));
-                                if (playerChoice() == targetNumber[goal]) {
-                                    goal++;
-                                    if (goal == 12) {
-                                        requst.textView.setText("게임 종료");
-                                    }
-                                    else {
-                                        requst.set(targetNumber[goal]);
-                                        requst.openCover();
-                                        numOfGoal.setText("문제: " + String.valueOf(goal + 1) + "/12");
-                                    }
+                                else {
+                                    calUnit = button.getCover();
+                                    Toast.makeText(MainActivity.this, firstValue + String.valueOf(calUnit) + secondValue + "=" + playerChoice(), Toast.LENGTH_SHORT).show();
+                                    refresh(buttons);
+                                    tryCount++;
+                                    numOfTry.setText("시도: " + tryCount);
+
+                                    if (playerChoice() == targetNumber[goal]) {
+                                        requst.correct();
+                                        goal++;
+                                        if (goal == 12) {
+                                            requst.textView.setText("게임 종료");
+                                            gameOver(buttons);
+                                        } else {
+                                            requst.set(targetNumber[goal]);
+                                            requst.openCover();
+                                            numOfGoal.setText("문제: " + String.valueOf(goal + 1) + "/12");
+                                        }
+                                    } else requst.wrong();
+                                    firstValue = 0;
+                                    secondValue = 0;
+                                    openCount = 0;
                                 }
-                                firstValue = 0;
-                                secondValue = 0;
                             }
                         }
                     });
@@ -100,23 +114,17 @@ public class MainActivity extends AppCompatActivity {
                 layoutParams.setMargins(5, 50, 5, 50);
                 requst.set(targetNumber[goal]); requst.setLayoutParams(layoutParams);
                 requst.openCover(); requst.textView.setTextSize(70);
-                //requst.set
                 tableRows[i].addView(requst);
             }
 
             else if (i == 5) {
-                /*TextView explain = new TextView(this);
-                explain.setText("수 2개를 고른 뒤 연산 기호를 선택해 위의 수를 만드세요.");
-                //explain.setLayoutParams(layoutParams);
-                tableRows[i].addView(explain);*/
-
                 numOfTry.setTextSize(20);
-                numOfTry.setText("시도: " + String.valueOf(tryCount));
+                numOfTry.setText("시도: 0");
                 numOfTry.setLayoutParams(layoutParams);
                 tableRows[i].addView(numOfTry);
 
                 numOfGoal.setTextSize(20);
-                numOfGoal.setText("문제: " + String.valueOf(goal + 1) + "/12");
+                numOfGoal.setText("문제: 1/12");
                 numOfTry.setLayoutParams(layoutParams);
                 tableRows[i].addView(numOfGoal);
             }
@@ -125,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
                 for (int j = 0; j < 4; j++) {
                     int ranValue = random.nextInt(12);
                     if(count[ranValue] > 0) {
-                        j -= 1;
+                        j--;
                         continue;
                     }
                     NumberButton button = new NumberButton(this);
@@ -139,8 +147,14 @@ public class MainActivity extends AppCompatActivity {
                                 button.openCover();
                             }
                             if (openCount == 2) {
-                                secondValue = button.getValue();
-                                button.openCover();
+                                if (button.getValue() == firstValue) {
+                                    Toast.makeText(MainActivity.this, "첫번째와 다른 수를 골라주세요.", Toast.LENGTH_SHORT).show();
+                                    openCount = 1;
+                                }
+                                else {
+                                    secondValue = button.getValue();
+                                    button.openCover();
+                                }
                             }
                         }
                     });
@@ -150,10 +164,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-    }
-
-    void countMatch() {
-
     }
 
     int playerChoice() {
@@ -173,5 +183,25 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         return result;
+    }
+
+    void refresh(NumberButton[][] question) {
+        int getRow = question.length - 1;
+        int getCol = question[0].length;
+        for (int i = 0; i < getRow; i++) {
+            for (int j = 0; j < getCol; j++) {
+                question[i][j].closeCover();
+            }
+        }
+    }
+
+    void gameOver(NumberButton[][] question) {
+        int getRow = question.length - 1;
+        int getCol = question[0].length;
+        for (int i = 0; i < getRow; i++) {
+            for (int j = 0; j < getCol; j++) {
+                question[i][j].openCover();
+            }
+        }
     }
 }
