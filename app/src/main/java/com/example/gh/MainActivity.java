@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
                     TableRow.LayoutParams.WRAP_CONTENT,
                     TableRow.LayoutParams.WRAP_CONTENT,
                     1.0f);
-            layoutParams.setMargins(5, 10, 5, 10);
+            layoutParams.setMargins(5, 5, 5, 5);
 
             if (i == 3) {
                 for (int j =0; j < 4; j++) {
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             else if (i == 4) {
-                layoutParams.setMargins(5, 50, 5, 50);
+                layoutParams.setMargins(5, 5, 5, 5);
                 requst.set(targetNumber[goal]); requst.setLayoutParams(layoutParams);
                 requst.openCover(); requst.textView.setTextSize(70);
                 tableRows[i].addView(requst);

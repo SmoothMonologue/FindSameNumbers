@@ -10,14 +10,10 @@ public class NumberButton extends FrameLayout {
     int value;
     Character cover;
     TextView textView;
-    //TextView[] memos=new TextView[9];
 
     public NumberButton(Context context) {
         super(context);
         textView=new TextView(context);
-        //LayoutInflater layoutInflater=
-        //       (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
         addView(textView);
         setClickable(true);
         setBackgroundResource(R.drawable.button_selector);
